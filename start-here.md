@@ -56,30 +56,28 @@ If two things match, your phone shows pictures and you tap the right one.
 
 ## Build plan
 
-One feature at a time. Everything real — no fakes, no placeholders. Stop and commit after
-each.
+One feature at a time, each finished completely. Stop and commit after each.
 
 | # | Feature | Done when |
 |---|---|---|
-| 1 | Setup | Monorepo, shared message types, CI green |
-| 2 | Auth | Sign up and log in works on the phone |
-| 3 | Dashboard and profile | Phone has real screens with real data |
-| 4 | Mac app shell | Installs, signed, menubar icon, signs in |
-| 5 | Pairing | Scan QR, phone and Mac connected and encrypted |
-| 6 | Talk button | Hold, speak, audio arrives on the Mac |
-| 7 | Speech to text | Mac shows what you said |
-| 8 | See the screen | Swift program lists what's visible |
-| 9 | Click and type | Swift program can act |
-| 10 | Matching | "Scroll down" and "click Save" work |
-| 11 | Numbers overlay | Ambiguous commands ask instead of guessing |
-| 12 | Menu commands | Any app's menu items by voice |
-| 13 | Screenshots | Capture, and send to phone |
-| 14 | Website and payments | People can buy it |
-| 15 | Hardening | Work through the corner cases |
+| 1 | Setup | Repos, shared message types, CI green |
+| 2 | Auth | Sign up and log in works, sessions persist |
+| 3 | Swift helper | It can see the screen and click things |
+| 4 | Mac agent shell | Installs, menubar, talks to the helper |
+| 5 | Pairing | Scan QR, phone and Mac connected |
+| 6 | Talk + speech | Hold, speak, the Mac shows what you said |
+| 7 | Matching | You're talking to your Mac. **The product works here** |
+| 8 | Devices screen | Real paired devices |
+| 9 | Dashboard + profile | Real command history |
+| 10 | Menu commands | Any app's menu items by voice |
+| 11 | Screenshots | Capture, OCR, send to phone |
+| 12 | LLM tier | The fallback resolver |
+| 13 | Website + payments | People can buy it |
+| 14 | Hardening | The corner cases |
 
-Features 1–5 have to be in that order. After that it's flexible.
-
----
+UI stays visually plain until the Figma designs exist. Logic, state and components are built
+to full quality from the start, with every visual value read from a tokens file so applying
+the design later is one file, not forty.
 
 ## Six rules that matter
 

@@ -209,31 +209,32 @@ Then stop. Do not start feature 1.
 
 ## The feature list
 
-In this order. Features 1 to 5 have to be sequential — each needs the one before it. After
-that there's some flexibility.
+In this order. Each one ships **complete**: logic, state, error handling, tests. Never four
+features at 80%.
 
 | # | Feature | Done when |
 |---|---|---|
-| 1 | Setup | Repo, shared message types, CI passing |
-| 2 | Auth | Sign up and log in works on the phone, for real |
-| 3 | Dashboard and profile | Real screens showing real data |
-| 4 | Mac app shell | Installs, signed, menubar icon, signs in |
-| 5 | Pairing | Scan the QR, phone and Mac connected and encrypted |
-| 6 | Talk button | Hold, speak, audio arrives on the Mac |
-| 7 | Speech to text | The Mac shows what you said |
-| 8 | See the screen | Swift program lists everything visible |
-| 9 | Click and type | Swift program can act on things |
-| 10 | Matching | "Scroll down" and "click Save" work |
-| 11 | Numbers overlay | Unclear commands ask instead of guessing |
-| 12 | Menu commands | Any app's menu items by voice |
-| 13 | Screenshots | Capture, and send to the phone |
-| 14 | Website and payments | People can buy it |
-| 15 | Hardening | Work through the corner cases |
+| 1 | Setup | Repos, protocol schemas, CI green |
+| 2 | Auth | Sign up and log in works on web and phone, sessions persist |
+| 3 | Swift helper | Snapshot, click, key, type, capture over stdio |
+| 4 | Mac agent shell | Installs, menubar, spawns and talks to the helper |
+| 5 | Pairing | Scan QR, phone and Mac connected and encrypted |
+| 6 | Talk + speech | Hold, speak, the Mac shows what you said |
+| 7 | Matching | "Scroll down" and "click Save" work. Numbered overlay |
+| 8 | Devices screen | Real paired devices, rename, revoke |
+| 9 | Dashboard + profile | Real command history |
+| 10 | Menu commands | Any app's menu items by voice |
+| 11 | Screenshots | Capture, OCR, send to phone |
+| 12 | LLM tier | Provider adapters, the fallback resolver |
+| 13 | Website + payments | People can buy it |
+| 14 | Hardening | The corner cases |
 
-**Everything is real.** No mocks. No fake agents. No stub code that gets replaced later. If a
-feature needs both the phone and the Mac, build both halves inside that feature.
+**Why devices and dashboard sit after pairing:** they display data that doesn't exist until
+a device can pair. Building them earlier means building against imagined data and reworking
+it later, which is the half-finished outcome we're avoiding.
 
----
+**Everything is real.** No mocks, no fake agents, no stub code replaced later. If a feature
+needs both the phone and the Mac, build both halves inside that feature.
 
 ## Already decided — don't reopen these
 
@@ -320,6 +321,32 @@ These all say different things and each one has to be true:
 
 This is a real requirement, not polish. An honest message prevents more support tickets than
 anything else in the project.
+
+### UI is unstyled for now, but never unfinished
+
+Figma designs come later. Until then every screen is **visually plain and functionally
+complete**. System fonts, default colours, no custom visual design. That is the only thing
+missing.
+
+Everything else ships at full quality: component structure, typed props, state, hooks,
+loading states, error states, empty states, accessibility labels. Those are behaviour, not
+decoration, and you would have to write them anyway.
+
+Three rules make applying the design later a small job instead of a rewrite:
+
+**Every visual value comes from a token.** No hardcoded colour, spacing, radius, font size or
+shadow anywhere in a component. They all read from one tokens file with placeholder values.
+Applying the Figma palette then means editing that one file, not forty components.
+
+**Presentation is separate from logic.** A screen is a container that owns state and data;
+the pieces it renders are dumb components that take props. Restyling touches only the dumb
+components, never the containers.
+
+**Build every state, not just the happy path.** Loading, empty, error, offline. Plain
+styling, real behaviour. A screen that only renders when everything succeeds is not finished.
+
+Do not apologise for the plain look in your summaries, and do not spend any time making it
+nicer. Plain and correct is the target.
 
 ### Platform is a plugin, not an assumption
 
