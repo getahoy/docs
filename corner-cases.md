@@ -52,7 +52,9 @@ These block you or waste a day if they surprise you.
 
 | Problem | Fix | Stage |
 |---|---|---|
-| VS Code and Slack return an empty tree | Set `AXManualAccessibility` on them, then re-read | 4 |
+| Electron tree looks empty | It isn't. Elements sit 20+ levels deep. Never cap depth low | 8 |
+| Tree still sparse after a deep walk | Then try `AXManualAccessibility`, wait 300ms, re-read | 8 |
+| Hundreds of empty AXStaticText nodes | Electron noise. Drop anything with no label and no action | 8 |
 | Some old apps expose nothing at all | Fall back to OCR, and say so instead of failing quietly | 5 |
 | A web page's tree is huge and slow | Limit depth, prune to the visible viewport | 4 |
 | Greyed-out buttons offered as targets | Drop anything with `AXEnabled` false | 5 |

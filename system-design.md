@@ -246,6 +246,24 @@ export interface Transport {
 
 Encryption wraps the stream above this interface, never inside an implementation.
 
+
+**Verified on device, Oct 2026 (macOS 26, VS Code).** The Electron advice below is partly
+wrong and this is the corrected version. VS Code exposed **177 labelled elements** with no
+special handling at all, including real targets like "Go Back", "Open Quick Access",
+"Toggle Chat" and "Customize Layout...". Setting `AXManualAccessibility` changed nothing.
+
+**Depth was the real problem.** Those buttons sit **20+ levels** below the window. A walk
+capped at depth 6 returns two elements and looks like an empty tree. At depth 25 they all
+appear.
+
+So: never cap depth low. Budget by element count and elapsed time instead (stop at ~500
+elements or 150ms, breadth-first from the focused window). Treat `AXManualAccessibility` as
+a legacy fallback for genuinely sparse trees, not a default step. And filter hard, because
+Electron trees carry hundreds of empty `AXStaticText` nodes with no label and no action.
+
+
+---
+
 ## 3.5 ResultReader (phase 2)
 
 ```ts

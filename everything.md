@@ -578,6 +578,21 @@ role and a press action. Cache the snapshot ~400 ms.
 
 Apple's Vision framework does OCR locally and free. No cloud vision model needed.
 
+
+> **Verified on device, Oct 2026 (macOS 26, VS Code).** The Electron advice below is partly
+> wrong and this is the corrected version. VS Code exposed **177 labelled elements** with no
+> special handling at all, including real targets like "Go Back", "Open Quick Access",
+> "Toggle Chat" and "Customize Layout...". Setting `AXManualAccessibility` changed nothing.
+>
+> **Depth was the real problem.** Those buttons sit **20+ levels** below the window. A walk
+> capped at depth 6 returns two elements and looks like an empty tree. At depth 25 they all
+> appear.
+>
+> So: never cap depth low. Budget by element count and elapsed time instead (stop at ~500
+> elements or 150ms, breadth-first from the focused window). Treat `AXManualAccessibility` as
+> a legacy fallback for genuinely sparse trees, not a default step. And filter hard, because
+> Electron trees carry hundreds of empty `AXStaticText` nodes with no label and no action.
+
 **Electron apps** (VS Code, Slack, Discord, Notion) return an empty tree by default. Chromium
 only builds its accessibility tree when it thinks a screen reader is present, because
 maintaining it costs CPU.
@@ -1317,7 +1332,9 @@ don't.
 
 | Problem | Fix | Feature |
 |---|---|---|
-| VS Code and Slack return an empty tree | `AXManualAccessibility`, wait 300 ms, re-read | 8 |
+| Electron tree looks empty | It isn't. Elements sit 20+ levels deep. Never cap depth low | 8 |
+| Tree still sparse after a deep walk | Then try `AXManualAccessibility`, wait 300ms, re-read | 8 |
+| Hundreds of empty AXStaticText nodes | Electron noise. Drop anything with no label and no action | 8 |
 | Old apps expose nothing at all | Fall back to OCR, say so instead of failing quietly | 10 |
 | A web page's tree is huge and slow | Limit depth, prune to visible viewport | 8 |
 | Greyed-out buttons offered as targets | Drop `AXEnabled` false, `AXHidden` true, zero size | 10 |
