@@ -11,14 +11,13 @@ keep things smooth. If I ask for something that breaks a rule we set, say so.
 
 ## How we work — read this before anything else
 
-### Never commit
+### Git flow
 
-**Do not run `git commit`, `git add`, `git push`, `git merge`, or anything else that changes
-git state. Not once. Not as a checkpoint. Not because it feels tidy.**
+Branch naming, commit format, the PR flow, the pre-push checklist and the review pipeline
+live in `CLAUDE.md`, not here. They apply to every session, not just this one.
 
-Reading git is fine — `git status`, `git diff`, `git log`.
-
-I commit. You never do.
+The short version so you know the shape: never push to `main`, branch per feature, open a
+PR, I merge.
 
 ### One feature at a time
 
@@ -719,7 +718,7 @@ questions about my own project, I have stopped directing and started hoping.
 
 ## What not to do
 
-- **Don't commit.** Ever.
+- **Don't push to `main`.** Ever. Branch, PR, wait.
 - **Don't chain features.** Build one, stop, wait for me.
 - Don't ask me how to implement something. Decide, do it, and tell me what you chose.
 - Don't leave placeholder code that "gets replaced later." Empty and correct beats full and
