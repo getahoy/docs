@@ -121,7 +121,7 @@ Events, but it goes through Apple Events and traversing a deep tree takes second
 prototype, hopeless for a sub-second budget.
 
 **The rule that matters:** the helper is dumb. All the untestable, platform-locked code sits in
-one small binary behind five commands. If you ever want Windows, you write a second binary and
+one small binary behind six commands. If you ever want Windows, you write a second binary and
 not one line of TypeScript changes.
 
 ### Electron for the agent, not a plain daemon
@@ -184,6 +184,10 @@ trust path, and it works identically over LAN and over a relay later.
 
 ### Pairing: local-first, server as fallback
 
+> **Superseded by `system-design.md` Part 16.** Pairing is now an enrollment port. Phase A
+> builds only `courier-lan`, where the phone carries the Mac's tokens. No Redis until
+> `server-rendezvous` is built (Part 15.3). The reasoning below is kept for history.
+
 **Chose:** the QR carries the Mac's LAN address *and* public key *and* a server code. Try local
 first, fall back to the server.
 
@@ -243,6 +247,9 @@ with MacBook Pro? Requested 8 seconds ago", and if they didn't start it they dec
 **And most of this is moot in practice**, because local-first pairing has no code at all.
 
 ### Redis and polling
+
+> **Superseded by `system-design.md` Parts 15.3 and 16.3.** Not built in Phase A. Do not add
+> Upstash until `server-rendezvous` exists.
 
 **Chose:** Redis with a 120-second TTL, desktop polls every 2 seconds.
 
@@ -332,6 +339,9 @@ sequential — auth needs the backend, pairing needs the Mac app. But nothing ge
 and nothing is a lie.
 
 ### Feature by feature, never commit
+
+> **Superseded:** now feature by feature, one branch and one PR each. See the Git flow in
+> `engineering/CLAUDE.md`.
 
 **Chose:** Claude Code builds one feature, stops, hands you a commit message, waits.
 
@@ -483,6 +493,7 @@ Three contracts: phone ↔ agent frames, agent ↔ helper JSON, and the action v
 {"id":"3","cmd":"key","combo":["cmd","shift","4"]}
 {"id":"4","cmd":"type","text":"hello world"}
 {"id":"5","cmd":"capture","rect":[120,340,200,200],"scale":1}
+// 6th verb: overlay (show / hide numbered badges). Shape defined in feature 3, built in feature 7
 
 // ← helper
 {"id":"1","ok":true,"result":{
@@ -498,7 +509,7 @@ Three contracts: phone ↔ agent frames, agent ↔ helper JSON, and the action v
   ]}}
 ```
 
-Five verbs. Never let OS specifics leak above this line.
+Six verbs. Never let OS specifics leak above this line.
 
 ## 3.2 The seven transport rules
 
@@ -921,7 +932,8 @@ type Capability =
   | 'globalMenuBar'        | 'perWindowMenu'
   | 'elementPress'         | 'windowCapture'
   | 'clickThroughOverlay'  | 'secureInputDetection'
-  | 'launchAtLogin'
+  | 'inputSynthesis'       | 'globalHotkey'
+  | 'launchAtLogin'        | 'appLaunch'      | 'deepLink'
 
 interface PlatformAdapter {
   readonly platform: Platform
@@ -1034,7 +1046,7 @@ on the adapter. Core asks "am I permitted?" and gets a yes or no.
 
 ### The protocol doesn't change
 
-The five verbs are already platform-neutral, which is the whole point of freezing them early. A
+The six verbs are already platform-neutral, which is the whole point of freezing them early. A
 Windows helper speaks the same JSON. The only difference is what a `ref` looks like inside, and
 core never looks inside.
 
@@ -1197,7 +1209,12 @@ The Mac has no browser worth logging in through, so it uses the device authoriza
 2. Agent shows the code and opens the URL in the default browser.
 3. User signs in normally on the website and approves.
 4. Agent has been polling; it receives access and refresh tokens.
-5. Tokens go into the macOS Keychain via Electron's `safeStorage`.
+5. Tokens are encrypted with Electron's `safeStorage` (the key lives in Keychain) and the
+   blob is written to a file in the app support directory.
+
+> **Superseded for Phase A by `system-design.md` Part 16.** The Mac gets its tokens from the
+> phone during `courier-lan` pairing. The device flow above becomes the `device-code`
+> enrollment strategy, built later.
 
 No embedded browser, no password ever passing through your app.
 
@@ -1291,6 +1308,9 @@ Seven defences, all of them:
 ---
 
 # Part 5 — Corner cases
+
+> **Feature numbers in this part are from the old 15-feature plan.** `corner-cases.md` is
+> canonical and is tagged with the current 14 features. Use that file.
 
 Filter to the feature you're on. Most cost minutes if you know in advance and hours if you
 don't.
@@ -1455,6 +1475,9 @@ don't.
 # Part 6 — How we work with Claude Code
 
 ## Never commit
+
+> **Superseded by the Git flow in `engineering/CLAUDE.md`.** Claude Code commits on a feature
+> branch, pushes, and opens a PR. It never pushes to `main`; the user squash-merges.
 
 **No `git commit`, `git add`, `git push`, `git merge`.** Not once. Not as a checkpoint. Reading
 git state is fine.

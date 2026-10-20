@@ -28,9 +28,9 @@ The loop, every single time:
 3. You show me three things:
    - What you built, in a few lines
    - Which files you added or changed
-   - A commit message I can use
+   - The commit messages on the branch, and the PR link
 4. You wait.
-5. I review it and commit it myself.
+5. I review the PR and squash-merge it myself.
 6. When I say continue, you take the next feature.
 
 Never do two features in one go. Never start the next one because the last one went well.
@@ -38,10 +38,9 @@ If a feature turns out bigger than expected, split it and stop at the first half
 
 ### Where docs go
 
-Everything you write for me goes in a `docs/` folder. Decisions, notes, anything explaining a
-choice. Make the folder if it isn't there.
-
-`CLAUDE.md` stays at the repo root.
+The three living docs — `CLAUDE.md`, `decisions.md`, `flow.md` — go in `engineering/`, a
+separate private repo beside `docs/`. `CLAUDE.md` is symlinked at the workspace root so every
+repo loads it. The spec stays in `docs/`.
 
 ### Before each feature
 
@@ -95,7 +94,7 @@ easily.
 
 ## What you're given
 
-1. **The docs** — `start-here`, `technical-reference`, `corner-case-register`. These say what
+1. **The docs** — `start-here`, `system-design`, `corner-cases`. These say what
    to build and which architecture and security choices are already made.
 2. **The `zyraa` repo** — this says *how we write code*. Style, structure, conventions.
 
@@ -160,7 +159,7 @@ Electron is the opposite case: the Mac app's settings window genuinely can be a 
 because Electron just loads a web page. Do that.
 
 **`agent`** — Electron. Menubar shape, main and renderer split properly. The
-Swift helper package lives here too, with its five-command contract stubbed out.
+Swift helper package lives here too, with its six-command contract stubbed out.
 
 **`web`** — Next.js. Site, auth and API.
 
@@ -214,7 +213,7 @@ features at 80%.
 | # | Feature | Done when |
 |---|---|---|
 | 1 | Setup | Repos, protocol schemas, CI green |
-| 2 | Auth | Sign up and log in works on web and phone, sessions persist |
+| 2 | Auth | Sign up and log in works on web and phone (email, Google, Apple), sessions persist |
 | 3 | Swift helper | Snapshot, click, key, type, capture over stdio |
 | 4 | Mac agent shell | Installs, menubar, spawns and talks to the helper |
 | 5 | Pairing | Scan QR, phone and Mac connected and encrypted |
@@ -616,10 +615,10 @@ user's `~/.npmrc`. Never in a repo, never committed.
 
 ### Living docs: three files you keep current
 
-These live in `docs/` and you update them **as part of each feature**, before you stop. Not
+These live in `engineering/` and you update them **as part of each feature**, before you stop. Not
 afterwards, not in a batch.
 
-**`docs/flow.md` — how the code actually runs.**
+**`engineering/flow.md` — how the code actually runs.**
 
 Starts with a table of entry points: for each app, the file where execution begins and what
 it does first. Then one section per major flow, written as a call chain with file paths,
@@ -643,7 +642,7 @@ phone   TalkScreen.showResult()
 Not a function-by-function dump, which is what the code is for. The paths a person needs to
 follow to find anything.
 
-**`docs/decisions.md` — meaningful decisions and why.**
+**`engineering/decisions.md` — meaningful decisions and why.**
 
 Append-only. Newest at the top. Keep each entry to about four lines.
 

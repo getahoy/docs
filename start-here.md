@@ -61,7 +61,7 @@ One feature at a time, each finished completely. Stop and commit after each.
 | # | Feature | Done when |
 |---|---|---|
 | 1 | Setup | Repos, shared message types, CI green |
-| 2 | Auth | Sign up and log in works, sessions persist |
+| 2 | Auth | Sign up and log in works (email, Google, Apple), sessions persist |
 | 3 | Swift helper | It can see the screen and click things |
 | 4 | Mac agent shell | Installs, menubar, talks to the helper |
 | 5 | Pairing | Scan QR, phone and Mac connected |
@@ -121,5 +121,5 @@ milliseconds, and every bug a user reports becomes a permanent test.
 | Doc | Open it when |
 |---|---|
 | **start-here** | You need the big picture |
-| **technical-reference** | You're building a specific feature |
-| **corner-cases** | Starting a feature. Filter to that feature only |
+| **system-design** | You're building a specific feature |
+| **corner-cases** | Starting a feature. Filter to that feature number only |

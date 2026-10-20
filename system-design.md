@@ -170,32 +170,11 @@ Implementations: `whisper-local` (default), `apple-speech`, `elevenlabs`, `groq-
 
 ## 3.2 LLMProvider
 
-Deliberately narrow. It cannot emit an action, only a reference to one that already exists.
+Defined in **Part 14.3**, which is the current design: `structured(schema, prompt, signal)`.
+Core asks for a shape; the adapter decides tool use versus JSON mode versus grammar.
 
-```ts
-export interface LLMProvider {
-  readonly id: string
-  readonly runsLocally: boolean
-  readonly p50LatencyMs: number
-  health(): Promise<Health>
-  resolve(input: ResolveInput): Promise<ResolveOutput | null>
-}
-
-export type ResolveInput = {
-  utterance: string
-  candidates: CandidateSummary[]   // ref + role + label + bounds. No raw page text
-  verbs: readonly ActionVerb[]     // the closed enum
-}
-
-export type ResolveOutput = {
-  verb: ActionVerb
-  ref: string                      // MUST exist in candidates. Validated before use
-  confidence: number
-}
-```
-
-Three constraints encoded in the types rather than in a prompt: no free-text target, no
-coordinates, no verb outside the enum. The output is Zod-validated and the ref is checked
+It cannot emit an action, only a reference to one that already exists: no free-text target,
+no coordinates, no verb outside the enum. The output is Zod-validated and the ref is checked
 against the live candidate list before anything executes.
 
 Implementations: `ollama` (default when enabled), `anthropic`, `groq`.
@@ -208,6 +187,7 @@ export type Capability =
   | 'globalMenuBar' | 'perWindowMenu'
   | 'elementPress' | 'windowCapture'
   | 'clickThroughOverlay' | 'secureInputDetection'
+  | 'inputSynthesis' | 'globalHotkey'
   | 'launchAtLogin' | 'appLaunch' | 'deepLink'
 
 export interface PlatformAdapter {
@@ -599,6 +579,9 @@ are soft-deleted via `revoked_at`, because a revoked device must stay refusable.
 
 ## 7.2 Redis (fallback pairing only)
 
+> **Superseded by Parts 15.3 and 16.3.** There is no Redis in Phase A. It arrives only with
+> the `server-rendezvous` enrollment strategy. Do not add Upstash before that.
+
 ```
 pair:<code>  →  { desktopPubKey, deviceInfo, createdAt }   TTL 120s, GETDEL on claim
 rate:<ip>    →  counter                                     TTL 60s
@@ -611,7 +594,7 @@ column replaces this entirely.
 ## 7.3 Agent (local, never synced)
 
 ```ts
-// Keychain
+// Encrypted with safeStorage (key in Keychain), blob written to the app support dir
 { sessionKey, authTokens, pairedPeers }
 
 // On disk, app support dir
@@ -1265,7 +1248,7 @@ Say this explicitly, or an SQLite dependency will appear.
 | What | Where |
 |---|---|
 | Settings, onboarding progress, provider preferences | A JSON file in the app support directory |
-| Auth tokens, session key, paired peers | macOS Keychain via Electron `safeStorage` |
+| Auth tokens, session key, paired peers | Encrypted with Electron `safeStorage`. It only encrypts: the key lives in Keychain, and we write the encrypted blob to a file in the app support directory ourselves |
 | Undo ring, last snapshot, command queue | Memory only. Never persisted, cleared on lock |
 
 That last row matters: the undo ring can contain dictated text, and dictated text can contain
@@ -1279,8 +1262,9 @@ MMKV for cache, `expo-secure-store` for keys.
 
 # Part 16 — Enrollment is a port, separate from transport
 
-Part 3.2 described pairing as one thing. It is two, and conflating them is why the no-Redis
-local-first path had a hole in it.
+The earlier pairing description (`everything.md` Part 1, "Pairing: local-first, server as
+fallback", and Part 7.2 here) treated pairing as one thing. It is two, and conflating them is
+why the no-Redis local-first path had a hole in it. This part supersedes both.
 
 ## 16.1 Pairing produces two outputs, from two different places
 
