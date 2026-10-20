@@ -1274,3 +1274,150 @@ a password.
 ## 15.5 The phone is not a database either
 
 MMKV for cache, `expo-secure-store` for keys.
+
+---
+
+# Part 16 — Enrollment is a port, separate from transport
+
+Part 3.2 described pairing as one thing. It is two, and conflating them is why the no-Redis
+local-first path had a hole in it.
+
+## 16.1 Pairing produces two outputs, from two different places
+
+| Output | What it is | Where it must come from |
+|---|---|---|
+| **Session key** | The symmetric key for the encrypted frame stream | Derived on both devices. **Never touches a server** |
+| **Identity** | Account link plus the Mac's auth tokens | The server. It is the only thing that can issue them |
+
+Every enrollment strategy produces both. They differ only in *how* the two devices and the
+server are introduced to each other. That is exactly the shape of a port.
+
+## 16.2 The port
+
+```ts
+export type EnrollmentKind = 'courier-lan' | 'server-rendezvous' | 'device-code'
+
+export type EnrollmentOffer = {
+  payload: QrPayload          // what the Mac displays
+  expiresAt: number
+}
+
+export type Enrollment = {
+  peerPublicKey: Uint8Array   // who we paired with
+  sessionKey: Uint8Array      // never leaves these two devices
+  tokens: AuthTokens          // issued by the server
+  accountId: string
+}
+
+export interface EnrollmentStrategy {
+  readonly kind: EnrollmentKind
+  probe(ctx: EnrollmentContext): Promise<boolean>
+  begin(): Promise<EnrollmentOffer>
+  complete(offer: EnrollmentOffer, signal: AbortSignal): Promise<Enrollment>
+}
+```
+
+Same chain pattern as transports and providers: an ordered list, each probed, first available
+one wins. Nothing above this layer knows which ran.
+
+## 16.3 The three strategies
+
+**`courier-lan`** — build this now, Phase A.
+
+The phone is the courier. Mac shows a QR carrying its address and public key. Phone scans,
+connects directly over the LAN, completes the key exchange, then calls `web` to link that
+public key to the account and issue tokens for it, and hands the tokens back over the
+already-encrypted socket.
+
+No server rendezvous, no Redis, no browser login on the Mac. The Mac does not even need
+internet at pairing time, only the phone does.
+
+**`server-rendezvous`** — for when the two devices cannot reach each other.
+
+Mac posts its public key, gets a short code with a TTL, and polls. Phone claims the code with
+its own public key and session token. Server links the account, burns the code atomically,
+and returns each device's public key to the other. Both derive the session key independently;
+the server never sees a private key. This is where Redis arrives, and not before.
+
+**`device-code`** — for when there is no phone at all.
+
+Mac displays a code, the user approves it in any browser. RFC 8628. This is also the natural
+path for a second Mac, or for a user who has not installed the phone app yet.
+
+## 16.4 The QR payload is versioned and additive
+
+This is what lets a new strategy ship without breaking installed apps. The phone picks a
+strategy from which fields are present and what it can actually reach.
+
+```jsonc
+{
+  "v": 1,
+  "pk": "<mac x25519 public key>",
+  "lan": { "host": "macbook.local", "port": 7421 },   // omit if LAN is unavailable
+  "code": "XKJ4-9WQ2",                                 // omit until rendezvous exists
+  "exp": 1756713600
+}
+```
+
+Rules: **never remove a field, never change a field's meaning, bump `v` for a breaking
+change.** An old phone ignores fields it does not know and falls back to what it understands.
+
+## 16.5 Pairing produces a peer, not a connection
+
+The most important rule in this part, and the one that makes "no wifi" support an addition
+rather than a migration.
+
+A pairing record is:
+
+```ts
+type PairedDevice = {
+  peerPublicKey: Uint8Array     // the identity. Permanent
+  sessionKey: Uint8Array
+  displayName: string
+  platform: Platform
+  capabilities: Capability[]
+  lastKnownAddresses: string[]  // a hint, never an identity
+}
+```
+
+**It records no transport.** You may enroll via `server-rendezvous` and then connect over the
+LAN. You may enroll over the LAN and later connect through a relay. The two chains are
+independent:
+
+```
+  no pairing record ──► enrollment chain ──► PairedDevice
+                         courier-lan
+                         server-rendezvous
+                         device-code
+
+  have pairing record ──► transport chain ──► FrameStream
+                           lan
+                           tailscale
+                           relay
+```
+
+Nothing in `core/` asks how a device was enrolled or which transport is carrying it.
+
+## 16.6 Paired but unreachable is a valid state
+
+Worth stating because it falls out of the separation and people treat it as a bug.
+
+Phone on cellular, Mac on home wifi, user standing in front of the Mac. `courier-lan` fails
+its probe. `server-rendezvous` succeeds: the devices are now paired and share a session key.
+But they still cannot reach each other, so the transport chain finds nothing.
+
+The honest result is "MacBook Pro is paired but not reachable. Join the same wifi, or turn on
+remote access." Not an error, not a spinner. Part 4.6's unreachable states already cover this;
+the enrollment split is what makes it expressible.
+
+## 16.7 What this costs today
+
+One interface and one implementation. `courier-lan` is the only strategy in Phase A, and the
+chain has one entry.
+
+What it buys: adding `server-rendezvous` later is a new adapter, one chain entry, one optional
+QR field, and a Redis dependency that appears for the first time. Zero changes in `core/`,
+zero changes to the phone's pairing screen, zero schema changes beyond what Part 7 already
+has.
+
+Same deal as the transport rules. Write the seam now, use it later.
