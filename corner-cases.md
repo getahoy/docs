@@ -188,7 +188,9 @@ These block you or waste a day if they surprise you.
 | Problem | Fix | Feature |
 |---|---|---|
 | One phone, several Macs | Device picker on the talk screen | 5 |
-| Several phones, one Mac | Allow it, show who's active, no concurrent commands | 5 |
+| Several phones, one Mac | One phone per Mac. Pairing a new phone replaces the old one only after the new pairing completes; the old phone is told why | 5 |
+| Wi-Fi drops mid-handshake | Show "Can't reach", never "removed". Only an authenticated refusal or goodbye ends a pairing | 5 |
+| One side removes the pairing while the other is offline | Server link revoked with a reason; the other side learns on its next server check or connection attempt | 5 |
 | Whisper is worse on atypical speech | Numbered overlay and phone touch are real interfaces, not fallbacks. Some users will rely on them | 7 |
 
 ---
