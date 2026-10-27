@@ -123,14 +123,30 @@ These block you or waste a day if they surprise you.
 
 | Problem | Fix | Feature |
 |---|---|---|
-| Button released too fast, no usable audio | Say "hold and speak" instead of returning nothing | 6 |
-| Someone rambles for 90 seconds | Cap recording at 30 s | 6 |
-| AirPods make the mic quality bad | Detect the route, warn once | 6 |
-| Phone call interrupts recording | Handle the audio interruption, reset the button | 6 |
-| User can't tell why it did the wrong thing | Always show the transcript | 6 |
-| "Copy" is too short for Whisper | Pad with silence before transcribing | 6 |
-| "Close" heard as "clothes" | Feed Whisper your command vocabulary as a prompt bias | 6 |
-| Accented or non-English speech | Make the model a setting. Multilingual beats `.en` | 6 |
+| Button released too fast, no usable audio | Under 0.5 s: "Hold to talk", nothing uploaded | 6 |
+| Someone rambles for 90 seconds | Recording stops at 30 s and is sent | 6 |
+| Silence | The server answers `nothing_heard`: "Didn't catch that" | 6 |
+| AirPods make the mic quality bad | Detect the route, warn once | later |
+| Phone call or app backgrounded while recording | Discard the recording, reset the button | 6 |
+| User can't tell why it did the wrong thing | Always show Heard "…" with the Mac's result | 6 |
+| "Close" heard as "clothes" | ElevenLabs keyterms: command words and common app names | 6 |
+| Hindi-English mixed speech | Auto language; "open karo", "kholo", "band karo" map to the verbs | 6 |
+| No internet on the phone | "Speech needs the internet", Try again re-uploads the same file | 6 |
+| Transcription fails | Plain message, Try again re-uploads the same file | 6 |
+| Mac unreachable after transcription | "Can't reach {Mac}", Try again resends the same command id and text | 6 |
+| Mac never answers | No result 10 s after the ack: "No answer from {Mac}"; never assume success | 6 |
+| Same command arrives twice | The Mac keeps the last 100 ids and answers a repeat with the stored result | 6 |
+| Mac locked | Button disabled; a command that gets through is refused: "Unlock your Mac to use Ahoy." | 6 |
+| Two apps match the name | `needsChoice` with the options, nothing runs | 6 |
+| No app matches the name | "Can't find an app called {name}" | 6 |
+| A command outside the list | "I can't do that yet" | 6 |
+| An app name containing quotes | Passed to `osascript` as an `on run argv` argument, never inside the script | 6 |
+| Quit waits on an unsaved document | Every `execFile` has a 5 s timeout; a timed-out quit answers "Asked {app} to quit. It may be waiting for you to save." | 6 |
+| A command takes a while | 3 s after the ack with no result, the phone shows "Check your Mac" | 6 |
+| Automation permission denied | osascript error -1743 → "Allow Ahoy to control {app} in System Settings → Privacy & Security → Automation." | 6 |
+| Apps inside folders (Adobe, Setapp, Chrome Apps) | The app scan reads one level of subfolders | 6 |
+| Too many transcriptions | 20 a minute per user; the phone says "Too many tries, wait a moment" with no retry | 6 |
+| Phone session expired | Transcribe answers unauthorized; the phone says "Sign in again" and returns to sign-in | 6 |
 
 ---
 
