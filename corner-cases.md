@@ -147,10 +147,10 @@ These block you or waste a day if they surprise you.
 | Apps inside folders (Adobe, Setapp, Chrome Apps) | The app scan reads one level of subfolders | 6 |
 | Too many transcriptions | 20 a minute per user; the phone says "Too many tries, wait a moment" with no retry | 6 |
 | Phone session expired | Transcribe answers unauthorized; the phone says "Sign in again" and returns to sign-in | 6 |
-| The AI names an app that is not installed | Every action is rejected; the parser's own message is shown | 7 |
+| The AI names an app that is not installed | Every action is rejected; "I can't do that yet" | 7 |
 | The AI presses Return nobody asked for | Return runs only when the person said enter, send, submit or return | 7 |
 | The AI types words nobody said | Typed text must appear in what the person said, or nothing runs | 7 |
-| The AI is slow or down | 5 s, no retry; the parser's own message is shown | 7 |
+| The AI is slow or down | 5 s on the server, 7 s on the Mac, no retry; "Smart commands aren't working right now", the reason logged on the Mac | 7 |
 | Typing while a password field has focus | The helper reports secure input; the phone hears "I won't type into a password field." | 7 |
 
 ---
