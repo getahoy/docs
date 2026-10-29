@@ -152,6 +152,27 @@ These block you or waste a day if they surprise you.
 | The AI types words nobody said | Typed text must appear in what the person said, or nothing runs | 7 |
 | The AI is slow or down | 5 s on the server, 7 s on the Mac, no retry; "Smart commands aren't working right now", the reason logged on the Mac | 7 |
 | Typing while a password field has focus | The helper reports secure input; the phone hears "I won't type into a password field." | 7 |
+| A spoken reply would read screen text (tab titles, documents, email bodies) | Speech is built from what the user said or what Ahoy did; choices are described by area only | 6 |
+| A draft's address would be read out | Speech says the name from the local part, never the address, subject or body | 6 |
+| Two options share an area ("toolbar, toolbar") | Areas are left out: "I see two Save buttons. Say one or two." | 6 |
+| ElevenLabs is slow, down or not configured | The device voice speaks after 1.5 s or on the error; the request is aborted so both voices never play | 6 |
+| The voice env vars are missing on the server | `/api/speak` answers 503 and both devices fall back quietly | 6 |
+| The user presses talk while Ahoy is speaking | Playback fades out at once, the Mac gets `speech.stop`, nothing plays while recording | 6 |
+| Sound comes from the earpiece after recording | The audio mode is reset to playback after every recording | 6 |
+| Silent switch on | No sound unless "Speak in silent mode" is on; Android has no switch and plays | 6 |
+| VoiceOver or TalkBack on | The reply is announced; our voice stays quiet | 6 |
+| The app goes to the background mid-speech | Speech stops | 6 |
+| A late result for an earlier command, or one older than 10 s | Shown, never spoken | 6 |
+| The user answers a choice by voice with a sound-alike ("to", "tree") | Accepted only inside a short answer with a choice open | 6 |
+| The user says a number outside the choices | "There are only two. Say one or two." and the choice stays open | 6 |
+| The user says "you pick" | Option one, said aloud and clicked through the safe path; never for a delete | 6 |
+| The user says "yes" to a destructive confirm | Not confirmed: "Tap Delete on your phone to confirm." | 6 |
+| The choice would expire while the user is answering | Holding talk sends `choice.extend` (+30 s, twice at most) | 6 |
+| Another paired session sends `choice.extend` or `speech.stop` | Ignored: only the session that owns the choice or speech counts | 6 |
+| The user keeps answering without finishing | After three follow-ups: "Let's start over." and the thread closes | 6 |
+| The Mac's preferred `say` voice is not installed | `say` runs without `-v` | 6 |
+| afplay is stopped mid-reply | `say` never starts for that reply | 6 |
+| An older phone build sends a command without `speakOn` | The Mac treats it as phone and runs it | 6 |
 
 ---
 
