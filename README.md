@@ -1,3 +1,9 @@
+<img src="assets/readme-banner.png" alt="ahoy / docs: how Ahoy works" width="100%">
+
+**Ahoy** is a voice assistant that lets you control your Mac from your phone. This repo explains how it's built.
+
+[▶ Watch the 1:45 demo](https://drive.google.com/file/d/1JMgSd2bm7LtUCs2WxiTNWuo0-bijqs4p/view?usp=sharing) · [All Ahoy repos](https://github.com/getahoy)
+
 # Ahoy — specification
 
 Talk to your Mac from your phone. It acts on what is currently on screen.
@@ -19,7 +25,7 @@ Talk to your Mac from your phone. It acts on what is currently on screen.
 | Repo | What |
 |---|---|
 | `getahoy/docs` | This |
-| `getahoy/shared` | `@getahoy/protocol`, `crypto`, `resolver`, `lib` |
+| `getahoy/shared` | `@getahoy/protocol`, `crypto`, `lib` |
 | `getahoy/mobile` | Expo, iOS and Android |
 | `getahoy/agent` | Electron plus the Swift helper |
 | `getahoy/web` | Next.js site, auth, API |
